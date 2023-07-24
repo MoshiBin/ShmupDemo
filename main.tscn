@@ -1,0 +1,89 @@
+[gd_scene load_steps=10 format=3 uid="uid://cehhpvldl6in7"]
+
+[ext_resource type="Script" path="res://main.gd" id="1_kr5ie"]
+[ext_resource type="Texture2D" uid="uid://c7jiqs71ves8y" path="res://Mini Pixel Pack 3/Space_BG (2 frames) (64 x 64).png" id="1_qhweb"]
+[ext_resource type="PackedScene" uid="uid://bm6thsa5pfssa" path="res://player.tscn" id="2_17jyf"]
+[ext_resource type="PackedScene" uid="uid://cee676wygp0sn" path="res://ui.tscn" id="4_v73an"]
+[ext_resource type="Texture2D" uid="uid://bxgsf2i8xliqj" path="res://Mini Pixel Pack 3/UI objects/START (48 x 8).png" id="5_sfm62"]
+[ext_resource type="Texture2D" uid="uid://cs7k4pfrettub" path="res://Mini Pixel Pack 3/UI objects/GAME_OVER (72 x 8).png" id="6_52wpa"]
+
+[sub_resource type="Animation" id="Animation_x5ikf"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Background:region_rect")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Rect2(0, 0, 240, 320)]
+}
+
+[sub_resource type="Animation" id="Animation_vfjwd"]
+resource_name = "scroll"
+length = 2.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Background:region_rect")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Rect2(0, 0, 240, 320), Rect2(0, -64, 240, 320)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_5hhc3"]
+_data = {
+"RESET": SubResource("Animation_x5ikf"),
+"scroll": SubResource("Animation_vfjwd")
+}
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_kr5ie")
+
+[node name="Background" type="Sprite2D" parent="."]
+texture_repeat = 2
+texture = ExtResource("1_qhweb")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 0, 240, 320)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+autoplay = "scroll"
+libraries = {
+"": SubResource("AnimationLibrary_5hhc3")
+}
+
+[node name="Player" parent="." instance=ExtResource("2_17jyf")]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="UI" parent="CanvasLayer" instance=ExtResource("4_v73an")]
+
+[node name="CenterContainer" type="CenterContainer" parent="CanvasLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="Start" type="TextureButton" parent="CanvasLayer/CenterContainer"]
+layout_mode = 2
+texture_normal = ExtResource("5_sfm62")
+
+[node name="GameOver" type="TextureRect" parent="CanvasLayer/CenterContainer"]
+layout_mode = 2
+texture = ExtResource("6_52wpa")
+
+[connection signal="died" from="Player" to="." method="_on_player_died"]
+[connection signal="shield_changed" from="Player" to="CanvasLayer/UI" method="_on_player_shield_changed"]
+[connection signal="pressed" from="CanvasLayer/CenterContainer/Start" to="." method="_on_start_pressed"]
